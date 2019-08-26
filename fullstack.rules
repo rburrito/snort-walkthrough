@@ -1,0 +1,3 @@
+#These are experimental rules used to test snort is working.
+alert icmp any any -> 192.168.56.101 any (msg:"Incoming pings!"; icode:0; itype:8; sid:10000;)
+alert tcp any  any -> 192.168.56.101 any (msg:"Incoming nmap sweep!"; sid:10001;)
