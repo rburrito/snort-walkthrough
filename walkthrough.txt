@@ -7,11 +7,14 @@ Step 6. Begin pinging and conducting nmap scans from the other machine so that W
 Step 7. Save the captured traffic with Wireshark. This traffic will be used to test experimental rules configured for Snort.
 Step 4. Steps 4 through 12 are for configuring more complex Snort rules. Please skip to step 13 if you would like to configure a small ruleset where you can easily detect the rules you created. Navigate to the snort.conf file located in /etc/snort/
 Step 5. In the snort.conf file, there is a home network variable called HOME_NET located in the line 'ipvar HOME_NET any'. Replace 'any' with the ip address of your machine. This will allow Snort to recognize any machine as part of an external network even if it is on the same subnet.
+Note: If you wish to establish a network rather than your machine, you can use CIDR notation to indicate the entire home network: 192.168.56.0/24
 Step 6. Make sure the line 'ipvar EXTERNAL_NET !$HOME_NET' is uncommented. Because machines outside of the ip address indicated in the original declaration of HOME_NET are recognized as part of an external network, this allows you to use a machine on the same subnet to test any experimental Snort rules configured later.  
 Step 7. Look for the section that begins with 'Step #7: Customize your rule set'. This is normally where you decide which rules you want to use.   
 Step 8. Navigate to /etc/snort/rules to create your own rule file. In this case, I am creating a file named fullstack.rules.
-Step 9. Here is a sample rule I have added: 'alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"Incoming pings!"; icode:0; itype:8; sid:10000;)' This will create an alert with the message "Incoming pings!" for any ICMP requests coming from the EXTERNAL_NET with the code of 0 and type 8 attempting to connect with the HOME_NET. If you want to indicate 2 way communication, use <> instead of ->  
-Step 10. Add 'include $RULE_PATH/fullstack.rules' at the end of the rule set section. This will include your newly made ruleset. 'sid' is a unique identifier for this particular alert.
+Step 9. Here is a sample rule I have added: 'alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"Incoming pings!"; icode:0; itype:8; sid:10000;)' 
+This will create an alert with the message "Incoming pings!" for any ICMP requests coming from the EXTERNAL_NET with the code of 0 and type 8 attempting to connect with the HOME_NET. 'sid' is the unique identifier for this particular rule. In general, you should use a number higher than 1 million because Snort has probably reserved sids of up to 1 million.
+Note: If you want to indicate 2 way communication, use <> instead of ->  
+Step 10. Add 'include $RULE_PATH/fullstack.rules at the end of the rule set section'. This will include your newly made ruleset. 
 Step 11. Now run 'snort -T -c snort.conf -r SnortTest.pcapng'. This will apply the Snort configuration you just modified with fullstack.rules to read the Wireshark capture you did earlier. To capture traffic from a device, use '-i eth0' instead of '-r SnortTest.pcapng'. Remember to include the full filepath if the pcap file is not accessible where you run the command.
 Step 12. View the logs and alert file in /var/log/snort/  
 Step 13. Create a new directory called logs and a file called fullstack.rules.
